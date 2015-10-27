@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:background="@color/background_material_dark3"
+    tools:showIn="@layout/activity_about"
+    tools:context="com.example.phantomlinux.ontime.About">
+
+    <TextView
+        android:id="@+id/title_dev_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:textSize="8pt"
+        android:textColor="#b94446"
+        android:textStyle="bold"
+        android:layout_alignParentStart="true"
+        android:text="Developer"/>
+
+    <TextView
+        android:id="@+id/txt_dev_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:layout_below="@+id/title_dev_name"
+        android:layout_alignParentEnd="true"
+        android:textSize="10pt"
+        android:textColor="#eb6a67"
+        android:text="Vaughn Chong"/>
+
+    <TextView
+        android:id="@+id/txt_dev_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_dev_name"
+        android:layout_marginBottom="1dp"
+        android:layout_alignParentEnd="true"
+        android:textSize="8pt"
+        android:textColor="#eb6a67"
+        android:text="vaughnchong@gmail.com"/>
+
+    <TextView
+        android:id="@+id/txt_dev_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_dev_email"
+        android:layout_alignParentEnd="true"
+        android:textSize="5pt"
+        android:textColor="#eb6a67"
+        android:text="Former APIIT Diploma student (UCDF1301)"/>
+
+    <TextView
+        android:id="@+id/txt_special_thanks"
+        android:layout_marginTop="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txt_dev_desc"
+        android:layout_alignParentStart="true"
+        android:textSize="8pt"
+        android:textStyle="italic"
+        android:textColor="#f4b9ba"
+        android:text="@string/special_thanks"/>
+    <TextView
+        android:id="@+id/txt_design_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:layout_below="@+id/txt_special_thanks"
+        android:layout_alignParentEnd="true"
+        android:textSize="10pt"
+        android:textColor="#eb6a67"
+        android:text="Jeremy Lee"/>
+    <TextView
+        android:id="@+id/txt_design_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:layout_below="@+id/txt_design_name"
+        android:layout_alignParentEnd="true"
+        android:textSize="8pt"
+        android:textColor="#eb6a67"
+        android:text="kingchochouses@gmail.com"/>
+    <TextView
+        android:id="@+id/txt_design_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:layout_below="@+id/txt_design_email"
+        android:layout_alignParentEnd="true"
+        android:textSize="5pt"
+        android:textColor="#eb6a67"
+        android:text="Current Year 2 Degree Student"/>
+</RelativeLayout>

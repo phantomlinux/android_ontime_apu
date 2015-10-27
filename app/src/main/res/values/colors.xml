@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#e53936</color>
+    <color name="colorPrimaryDark">#c62828</color>
+    <color name="colorFloatingButton">#cd7f32</color>
+    <color name="colorAccent">#ffdddd</color>
+    <color name="statusBarColor">#c62828</color>
+    <color name="refresh_progress_1">@color/colorPrimaryDark</color>
+    <color name="refresh_progress_2">#ff6262</color>
+    <color name="refresh_progress_3">#ff7c7c</color>
+    <color name="accent_material_dark_1">#e53935</color>
+    <color name="foreground_material_dark">#ffebee</color>
+    <color name="background_material_dark">#828282</color>
+    <color name="background_material_dark2">#464646</color>
+    <color name="background_material_dark3">#2d2d2d</color>
+    <color name="accent_material_dark_2">#c62828</color>
+    <color name="primary_text_material_dark">#d48e8e</color>
+</resources>
