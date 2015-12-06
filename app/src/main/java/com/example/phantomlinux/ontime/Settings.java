@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,19 +83,20 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
                 if (txtIntakeCode.getText().length() > 0) {
 
                     String intakeCode = txtIntakeCode.getText().toString();
-                    intakeCode.replace(" ","");
-                    intakeCode.toUpperCase();
+                    intakeCode = intakeCode.replace(" ","");
+                    intakeCode = intakeCode.toUpperCase();
+                    intakeCode = intakeCode.trim();
 
-                    //Save intake code in sahred preference
+                    //Save intake code in shared preference
                     SharedPreferences.Editor editor = getSharedPreferences("sharedpref", MODE_PRIVATE).edit();
                     editor.putString("intakecode", intakeCode);
                     editor.commit();
 
                     //Disable edit text field
                     disableEditText(txtIntakeCode.getText().toString());
-
+                    break;
                 }
-                break;
+
         }
     }
 }
