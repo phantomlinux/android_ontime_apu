@@ -78,9 +78,6 @@ public class FilterDialogFragment extends DialogFragment{
                         }
                         Logi.v("page"+page);
                         SectionsPagerAdapter sectionsPagerAdapter = MainActivity.mSectionsPagerAdapter;
-                        //SectionsPagerAdapter.PlaceholderFragment place = (SectionsPagerAdapter.PlaceholderFragment) sectionsPagerAdapter.getItem(page);
-                        //Logi.v("dyonly"+place.dayOnly.size());
-                        //place.filterRecyclerView(mSelectedItems);
                         sectionsPagerAdapter.placeholderFragmentArrayList.get(page).filterRecyclerView(mSelectedItems);
                         sectionsPagerAdapter.notifyDataSetChanged();
                     }
