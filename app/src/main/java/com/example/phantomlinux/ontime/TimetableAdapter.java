@@ -15,6 +15,7 @@ import org.w3c.dom.Text;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,15 +23,13 @@ import java.util.List;
  * Created by phantomlinux on 10/17/2015.
  */
 public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Timetable> a;
+    private List<Timetable> a = new ArrayList<Timetable>();
     public Context context;
 
     public TimetableAdapter(List<Timetable> a, Context context) {
         super();
-        this.a = a;
+        this.a.addAll(a);
         this.context = context;
-        //Log.v(null, new Integer(a.size()).toString());
-        //Log.v(null, "Run new timetable adapter");
     }
 
     @Override
@@ -63,7 +62,6 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         else {
             return 2;
         }
-        //return super.getItemViewType(position);
     }
 
     @Override

@@ -30,9 +30,6 @@ public class DownloadTimetable extends AsyncTask<Void, Void, Void> {
         this.mainContext = mainContext;
         MainActivity mainActivity = (MainActivity)mainContext;
         mainActivity.swipeRefreshLayout.setRefreshing(true);
-        //SectionsPagerAdapter.PlaceholderFragment.refreshLayout.setRefreshing(true);
-        Log.v("log", "DownloadTimetable Asynctask executed");
-        //Log.v("log", "Who is main context?"+mainContext.toString());
     }
 
     @Override
@@ -43,8 +40,6 @@ public class DownloadTimetable extends AsyncTask<Void, Void, Void> {
             connection.connect();
             int lengthOfFile = connection.getContentLength();
             InputStream is = url.openStream();
-
-            Log.v(null, "Download Timetable Do in Background");
 
             File testDirectory = null;
             try {
@@ -80,14 +75,11 @@ public class DownloadTimetable extends AsyncTask<Void, Void, Void> {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         try {
             unpackZip(getDataDir(appContext)+"/TTFolder/", "tt.zip");
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
         return null;
     }
 
@@ -97,14 +89,8 @@ public class DownloadTimetable extends AsyncTask<Void, Void, Void> {
 
         MainActivity mainActivity = (MainActivity) mainContext;
         mainActivity.runParse();
-        //mainActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         mainActivity.updateSectionAdapter();
         mainActivity.swipeRefreshLayout.setRefreshing(false);
-        //mainActivity.printTimetable();
-//        HomeActivity homeActivity = (HomeActivity)homeContext;
-//        homeActivity.runParse();
-//        homeActivity.updaterecyclerView();
-        Log.v("log", "onPostExecute");
     }
 
     public String getDataDir(final Context context) throws Exception {
@@ -123,12 +109,7 @@ public class DownloadTimetable extends AsyncTask<Void, Void, Void> {
             int count;
 
             while ((ze = zis.getNextEntry()) != null) {
-
-                //filename = ze.getName();
                 filename = "timetable.xml";
-                Log.v("log", "File name  "+filename);
-                // Need to create directories if not exists, or
-                // it will generate an Exception...
                 if (ze.isDirectory()) {
                     File fmd = new File(path + filename);
                     fmd.mkdirs();

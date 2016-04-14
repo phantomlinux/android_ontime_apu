@@ -25,19 +25,7 @@ public class XMLParser {
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(in);
             parser.nextTag();
-            //Start testing
-            /*
-            int eventType = parser.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                Log.v("log", "Parser name:" + parser.getName());
-                parser.next();
-            }
-            */
-            //Log.v("log", "Parser name:" + parser.getName());
-
             return readWeek(parser);
-            //String test = parser.getText().toString();
-            //Log.v("log", parser.toString());
         }
         finally {
             in.close();
@@ -45,14 +33,8 @@ public class XMLParser {
     }
 
     public List readWeek(XmlPullParser parser) throws XmlPullParserException, IOException {
-
-
-        //Log.v("log", "Parser name:" + parser.getName());
-
         List week = new ArrayList();
-
         parser.require(XmlPullParser.START_TAG, ns, "weekof");
-
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -61,19 +43,6 @@ public class XMLParser {
             String attrib = parser.getAttributeValue(null, "name");
 
             if (tag.equals("intake") && attrib.equals(MainActivity.intakeCode) ) {
-                /*
-                if (attrib.equals(HomeActivity.intakeCode)) {
-                    Log.v("log", "if att equals intakecode");
-                    Log.v("log", "Parser Name:" + parser.getName() + "Attribute" + parser.getAttributeValue(null, "name"));
-
-
-                    week.add(readTimetable(parser));
-                }
-                else {
-                    Log.v("log", "SKIP PARSER:"+parser.getName());
-                    skip(parser);
-                }
-                */
                 week = readIntake(parser);
             }
             else {
@@ -92,11 +61,9 @@ public class XMLParser {
             }
             String tag = parser.getName();
             if (tag.equals("timetable")) {
-
                 week.add(readTimetable(parser));
             }
             else {
-                //Log.v("log", "SKIP PARSER:"+parser.getName());
                 skip(parser);
             }
         }
@@ -159,7 +126,6 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "date");
         String title = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "date");
-        //Log.v("log", "Title" + title);
         return title;
     }
 
@@ -167,7 +133,6 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "time");
         String title = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "time");
-        //Log.v("log", "Title" + title);
         return title;
     }
 
@@ -175,7 +140,6 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "location");
         String title = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "location");
-        //Log.v("log", "Title" + title);
         return title;
     }
 
@@ -183,7 +147,6 @@ public class XMLParser {
         parser.require(XmlPullParser.START_TAG, ns, "classroom");
         String title = readText(parser);
         parser.require(XmlPullParser.END_TAG, ns, "classroom");
-        //Log.v("log", "Title" + title);
         return title;
     }
 
@@ -201,7 +164,6 @@ public class XMLParser {
         return title;
     }
 
-    // For the tags title and summary, extracts their text values.
     private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {

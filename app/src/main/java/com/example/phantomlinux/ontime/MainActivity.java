@@ -1,5 +1,7 @@
 package com.example.phantomlinux.ontime;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,6 +21,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.example.phantomlinux.ontime.Util.Logi;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
@@ -28,6 +31,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
      * may be best to switch to a
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
-    public SectionsPagerAdapter mSectionsPagerAdapter;
+    public static SectionsPagerAdapter mSectionsPagerAdapter;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -54,11 +58,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public static FloatingActionButton fab;
     public SwipeRefreshLayout swipeRefreshLayout;
     public static List<Timetable> timetable = new ArrayList<Timetable>();
-    public static List<Timetable> monTable = new ArrayList<Timetable>();
-    public static List<Timetable> tueTable = new ArrayList<Timetable>();
-    public static List<Timetable> wedTable = new ArrayList<Timetable>();
-    public static List<Timetable> thuTable = new ArrayList<Timetable>();
-    public static List<Timetable> friTable = new ArrayList<Timetable>();
+    public final static List<Timetable> monTable = new ArrayList<Timetable>();
+    public final static List<Timetable> tueTable = new ArrayList<Timetable>();
+    public final static List<Timetable> wedTable = new ArrayList<Timetable>();
+    public final static List<Timetable> thuTable = new ArrayList<Timetable>();
+    public final static List<Timetable> friTable = new ArrayList<Timetable>();
+    public FragmentManager fragmentManager;
+    public FragmentTransaction fragmentTransaction;
 
 
     @Override
@@ -67,20 +73,17 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(5);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
         appContext = getApplicationContext();
-        //MainActivity.intakeCode = "AFCF1408";
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setColorSchemeResources(
@@ -90,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeRefreshLayout.setRefreshing(true);
         SharedPreferences prefs = getSharedPreferences("sharedpref", MODE_PRIVATE);
         intakeCode = prefs.getString("intakecode", null);
-        //Log.v("log", "Shared preference:" + intakeCode);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             }
         });
 
-
         if (intakeCode!=null){
             runParse();
             updateSectionAdapter();
@@ -126,11 +127,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, Settings.class);
             startActivity(intent);
@@ -143,15 +140,26 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             return true;
         }
 
+        if (id  == R.id.filter){
+            fragmentManager = getFragmentManager();
+            fragmentTransaction = fragmentManager.beginTransaction();
+            FilterDialogFragment filterDialogFragment = new FilterDialogFragment();
+            String[] abc = getFilterList(getTimetableFromPosition(mViewPager.getCurrentItem()));
+            Bundle bundle = new Bundle();
+            bundle.putStringArray("filterList",abc);
+            bundle.putInt("page", mViewPager.getCurrentItem());
+            filterDialogFragment.setArguments(bundle);
+            fragmentTransaction.add(filterDialogFragment, "filter");
+            fragmentTransaction.commit();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
     public void runParse() {
-
         File dir = null;
         try {
             dir = new File(getDataDir(getApplicationContext())+"/TTFolder/timetable.xml");
-            Log.v("log", "File path: " + dir.getPath());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -196,46 +204,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 friTable.add(data);
             }
         }
-            /*
-            Log.v(null, "Separate timetable");
-            for(int y=0; y<monTable.size(); y++){
-                Timetable dd = monTable.get(y);
-                Log.v(null, "dd"+dd.classroom+dd.lecturer+dd.time+dd.module+dd.date);
-            }
-            for(int y=0; y<tueTable.size(); y++){
-                Timetable dd = tueTable.get(y);
-                Log.v(null, "dd"+dd.classroom+dd.lecturer+dd.time+dd.module+dd.date);
-            }
-            for(int y=0; y<wedTable.size(); y++){
-                Timetable dd = wedTable.get(y);
-                Log.v(null, "dd"+dd.classroom+dd.lecturer+dd.time+dd.module+dd.date);
-            }
-            for(int y=0; y<thuTable.size(); y++){
-                Timetable dd = thuTable.get(y);
-                Log.v(null, "dd"+dd.classroom+dd.lecturer+dd.time+dd.module+dd.date);
-            }
-            for(int y=0; y<friTable.size(); y++){
-                Timetable dd = friTable.get(y);
-                Log.v(null, "dd"+dd.classroom+dd.lecturer+dd.time+dd.module+dd.date);
-            }
-            */
     }
-
-    public void printTimetable () {
-        for (int i = 0 ; i < timetable.size(); i++) {
-            Timetable temp = timetable.get(i);
-            Log.v("log", "Date :" + temp.date+ "Time" + temp.time+ "Location" + temp.location + "Classroom" + temp.classroom + "Module" + temp.module + "Lect" + temp.lecturer );
-        }
-    }
-
-    /*
-    public void printMonday() {
-        for (int t =0; t < monTable.size(); t++){
-            Timetable temp2 = monTable.get(t);
-            Log.v(null, "Date"+temp2.date+" Class"+temp2.module);
-        }
-    }
-    */
 
     public String getDataDir(final Context context) throws Exception {
         return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).applicationInfo.dataDir;
@@ -243,14 +212,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onRefresh() {
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (MainActivity.intakeCode!= null) {
             new DownloadTimetable(MainActivity.appContext, this).execute();
         }
     }
 
     public void updateSectionAdapter() {
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        // mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager()); //dont run agn
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mSectionsPagerAdapter.notifyDataSetChanged();
     }
@@ -264,9 +232,45 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 Snackbar.make(fab, "Your intake code might be wrong.", Snackbar.LENGTH_LONG).show();
             }
     }
+
+    public String[] getFilterList(List<Timetable> timetable){
+        ArrayList<String> tempList = new ArrayList<String>();
+        String last;
+
+        for (int x = 0; x < timetable.size(); x++) {
+            last = timetable.get(x).module.substring(timetable.get(x).module.lastIndexOf("-")+1);
+            if (!tempList.contains(last)){
+                tempList.add(last);
+            }
+        }
+        tempList.add(0,"Select All");
+        return tempList.toArray(new String[tempList.size()]);
+    }
+
+    public List<Timetable> getTimetableFromPosition (int position){
+        List<Timetable> timetableList = new ArrayList<Timetable>() {};
+        switch (position) {
+            case 0:
+                timetableList.addAll(monTable);
+                break;
+            case 1:
+                timetableList.addAll(tueTable);
+                break;
+            case 2:
+                timetableList.addAll(wedTable);
+                break;
+            case 3:
+                timetableList.addAll(thuTable);
+                break;
+            case 4:
+                timetableList.addAll(friTable);
+                break;
+        }
+        return timetableList;
+    }
+
     class MyFilter implements FilenameFilter {
         @Override
-        //return true if find a file named "a",change this name according to your file name
         public boolean accept(final File dir, final String name) {
             return ((name.endsWith(".xml")) | (name.startsWith("a") && name.endsWith(".txt")) | (name.startsWith("a") && name.endsWith(".mp3") | (name.startsWith("a") && name.endsWith(".mp4"))));
         }

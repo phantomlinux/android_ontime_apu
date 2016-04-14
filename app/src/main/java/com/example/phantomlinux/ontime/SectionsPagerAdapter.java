@@ -17,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import com.example.phantomlinux.ontime.Util.Logi;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,21 +28,25 @@ import java.util.List;
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
+    public FragmentManager fragmentManager;
+
+    public ArrayList<PlaceholderFragment> placeholderFragmentArrayList= new ArrayList<PlaceholderFragment>();
+
     public SectionsPagerAdapter(FragmentManager fm) {
         super(fm);
+        this.fragmentManager = fm;
     }
 
     @Override
-    public Fragment getItem(int position) {
-        // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        //return PlaceholderFragment.newInstance(position + 1);
-        return PlaceholderFragment.newInstance(position);
+    public Fragment getItem(int position){
+        Logi.v("size getItem"+placeholderFragmentArrayList.size()+"pos"+position);
+        PlaceholderFragment placeholderFragment = new PlaceholderFragment().newInstance(position);
+        placeholderFragmentArrayList.add(position, placeholderFragment);
+        return placeholderFragment;
     }
 
     @Override
     public int getCount() {
-        // return show how many pages
         return 5;
     }
 
@@ -61,28 +67,15 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         return null;
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
     public static class PlaceholderFragment extends Fragment{
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
 
-        private static RecyclerView recyclerView;
-        private static RecyclerView.Adapter recyclerViewAdapter;
-        private static RecyclerView.LayoutManager recyclerViewLayoutManager;
-        public static List<Timetable> dayOnly;
-
-        //public static SwipeRefreshLayout refreshLayout;
+        private RecyclerView recyclerView;
+        private RecyclerView.Adapter recyclerViewAdapter;
+        private RecyclerView.LayoutManager recyclerViewLayoutManager;
+        public List<Timetable> dayOnly;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -97,27 +90,24 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-
+            dayOnly = new ArrayList<Timetable>();
             Bundle args = getArguments();
             int sectionNumber = args.getInt(ARG_SECTION_NUMBER);
-            //Log.v(null, "Section number"+sectionNumber);
             switch (sectionNumber){
                 case 0:
-                    dayOnly = MainActivity.monTable;
+                    dayOnly.addAll(MainActivity.monTable);
                     break;
                 case 1:
-                    dayOnly = MainActivity.tueTable;
+                    dayOnly.addAll(MainActivity.tueTable);
                     break;
                 case 2:
-                    dayOnly = MainActivity.wedTable;
+                    dayOnly.addAll(MainActivity.wedTable);
                     break;
                 case 3:
-                    dayOnly = MainActivity.thuTable;
+                    dayOnly.addAll(MainActivity.thuTable);
                     break;
                 case 4:
-                    dayOnly = MainActivity.friTable;
-                    break;
-                default:
+                    dayOnly.addAll(MainActivity.friTable);
                     break;
             }
 
@@ -134,7 +124,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 @Override
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
-                    //Log.v(null, new Integer(newState).toString());
                     if (newState==0 || newState==2){
                         MainActivity.fab.show();
                     }
@@ -163,31 +152,29 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             recyclerViewAdapter = new TimetableAdapter(dayOnly, getContext());
             recyclerView.setAdapter(recyclerViewAdapter);
             recyclerViewAdapter.notifyDataSetChanged();
-
-            //refreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
-            //refreshLayout.setOnRefreshListener(this);
-
             return rootView;
         }
 
-        /*
-        @Override
-        public void onRefresh() {
-            getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-            if (MainActivity.intakeCode!= null) {
-                new DownloadTimetable(MainActivity.appContext, getContext()).execute();
+        public void filterRecyclerView(ArrayList<String> cat) {
+            Logi.v("dayOnly"+dayOnly.size()+"cat"+cat.size());
+            List<Timetable> temp = new ArrayList<Timetable>();
+            for (int x=0; x< dayOnly.size(); x++){
+                boolean remove=false;
+                for (int y= 0 ; y < cat.size(); y++){
+                    if (dayOnly.get(x).module.substring(dayOnly.get(x).module.lastIndexOf("-")+1).equals(cat.get(y))){
+                        remove=false;
+                        break;
+                    } else {
+                        remove=true;
+                    }
+                }
+                if (!remove){
+                    temp.add(dayOnly.get(x));
+                }
             }
-            //Log.v(null, "getContext()=="+getContext());
-            refreshLayout.setRefreshing(false);
-
-        }
-        */
-        /*
-        public static void updateRecyclerView() {
-            recyclerViewAdapter = new TimetableAdapter(dayOnly, this.getContext());
+            recyclerViewAdapter = new TimetableAdapter(temp, getContext());
             recyclerView.setAdapter(recyclerViewAdapter);
             recyclerViewAdapter.notifyDataSetChanged();
         }
-        */
     }
 }
