@@ -1,11 +1,8 @@
 package com.example.phantomlinux.ontime;
 
-import android.util.Log;
 import android.util.Xml;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;

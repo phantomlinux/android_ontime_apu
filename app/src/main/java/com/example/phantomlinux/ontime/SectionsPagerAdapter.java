@@ -1,30 +1,20 @@
 package com.example.phantomlinux.ontime;
 
-/**
- * Created by phantomlinux on 10/17/2015.
- */
-
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import com.example.phantomlinux.ontime.Util.Logi;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
- * one of the sections/tabs/pages.
+ * Created by phantomlinux on 10/17/2015.
  */
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 

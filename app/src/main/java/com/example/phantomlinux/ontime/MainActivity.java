@@ -11,19 +11,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-
-import com.example.phantomlinux.ontime.Util.Logi;
 import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,27 +24,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     public static SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
-
     public static String intakeCode;
     public static Context appContext;
     public Toolbar toolbar;
@@ -65,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public final static List<Timetable> friTable = new ArrayList<Timetable>();
     public FragmentManager fragmentManager;
     public FragmentTransaction fragmentTransaction;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,7 +196,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void updateSectionAdapter() {
-        // mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager()); //dont run agn
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mSectionsPagerAdapter.notifyDataSetChanged();
     }

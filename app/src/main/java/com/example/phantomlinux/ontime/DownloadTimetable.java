@@ -2,9 +2,6 @@ package com.example.phantomlinux.ontime;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.view.WindowManager;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;

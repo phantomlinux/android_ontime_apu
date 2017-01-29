@@ -3,21 +3,15 @@ package com.example.phantomlinux.ontime;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
 import com.example.phantomlinux.ontime.Util.Logi;
-
 import java.util.ArrayList;
 
 /**
- * Created by root on 11/04/16.
+ * Created by phantomlinux on 11/04/16.
  */
 public class FilterDialogFragment extends DialogFragment{
 
