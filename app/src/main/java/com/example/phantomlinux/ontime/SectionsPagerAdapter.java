@@ -1,6 +1,8 @@
 package com.example.phantomlinux.ontime;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -16,21 +18,18 @@ import java.util.List;
 /**
  * Created by phantomlinux on 10/17/2015.
  */
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    public FragmentManager fragmentManager;
+    ArrayList<PlaceholderFragment> placeholderFragmentArrayList= new ArrayList<>();
 
-    public ArrayList<PlaceholderFragment> placeholderFragmentArrayList= new ArrayList<PlaceholderFragment>();
-
-    public SectionsPagerAdapter(FragmentManager fm) {
+    SectionsPagerAdapter(FragmentManager fm, Context mainContext) {
         super(fm);
-        this.fragmentManager = fm;
     }
 
     @Override
     public Fragment getItem(int position){
         Logi.v("size getItem"+placeholderFragmentArrayList.size()+"pos"+position);
-        PlaceholderFragment placeholderFragment = new PlaceholderFragment().newInstance(position);
+        PlaceholderFragment placeholderFragment = PlaceholderFragment.newInstance(position);
         placeholderFragmentArrayList.add(position, placeholderFragment);
         return placeholderFragment;
     }
@@ -62,7 +61,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         private RecyclerView recyclerView;
         private RecyclerView.Adapter recyclerViewAdapter;
         private RecyclerView.LayoutManager recyclerViewLayoutManager;
-        public List<Timetable> dayOnly;
+        public List<Event> dayOnly;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -80,24 +79,24 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            dayOnly = new ArrayList<Timetable>();
+            dayOnly = new ArrayList<Event>();
             Bundle args = getArguments();
             int sectionNumber = args.getInt(ARG_SECTION_NUMBER);
             switch (sectionNumber){
                 case 0:
-                    dayOnly.addAll(MainActivity.monTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).monTable);
                     break;
                 case 1:
-                    dayOnly.addAll(MainActivity.tueTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).tueTable);
                     break;
                 case 2:
-                    dayOnly.addAll(MainActivity.wedTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).wedTable);
                     break;
                 case 3:
-                    dayOnly.addAll(MainActivity.thuTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).thuTable);
                     break;
                 case 4:
-                    dayOnly.addAll(MainActivity.friTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).friTable);
                     break;
             }
 
@@ -115,13 +114,16 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                     super.onScrollStateChanged(recyclerView, newState);
                     if (newState==0 || newState==2){
-                        MainActivity.fab.show();
+                        ((FloatingActionButton)getActivity().findViewById(R.id.fab)).show();
+//                        MainActivity.fab.show();
                     }
                     else if (newState == 1){
-                        MainActivity.fab.hide();
+                        ((FloatingActionButton)getActivity().findViewById(R.id.fab)).hide();
+//                        MainActivity.fab.hide();
                     }
                     else {
-                        MainActivity.fab.show();
+                        ((FloatingActionButton)getActivity().findViewById(R.id.fab)).show();
+//                        MainActivity.fab.show();
                     }
 
                 }
@@ -146,8 +148,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         }
 
         public void filterRecyclerView(ArrayList<String> cat) {
-            Logi.v("dayOnly"+dayOnly.size()+"cat"+cat.size());
-            List<Timetable> temp = new ArrayList<Timetable>();
+            List<Event> temp = new ArrayList<>();
             for (int x=0; x< dayOnly.size(); x++){
                 boolean remove=false;
                 for (int y= 0 ; y < cat.size(); y++){

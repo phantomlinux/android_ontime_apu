@@ -18,11 +18,12 @@ import java.util.List;
 /**
  * Created by phantomlinux on 10/17/2015.
  */
+
 public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Timetable> a = new ArrayList<Timetable>();
+    private List<Event> a = new ArrayList<Event>();
     public Context context;
 
-    public TimetableAdapter(List<Timetable> a, Context context) {
+    public TimetableAdapter(List<Event> a, Context context) {
         super();
         this.a.addAll(a);
         this.context = context;
@@ -65,7 +66,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (holder.getItemViewType()){
             case 0:
                 FirstCard firstCard= (FirstCard)holder;
-                Timetable firstCardData = a.get(0);
+                Event firstCardData = a.get(0);
                 DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
                 try {
                     Date date = df.parse(firstCardData.date.substring(4));
@@ -98,7 +99,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
             case 1:
                 ViewHolder viewHolder = (ViewHolder)holder;
-                Timetable data = a.get(position-1);
+                Event data = a.get(position-1);
                 viewHolder.txtLecturer.setText(data.lecturer);
                 viewHolder.txtModule.setText(data.module);
                 viewHolder.txtLocation.setText(data.location+" "+data.classroom);

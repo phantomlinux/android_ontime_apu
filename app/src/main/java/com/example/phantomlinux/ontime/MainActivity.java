@@ -16,32 +16,33 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import org.xmlpull.v1.XmlPullParserException;
+
+import com.example.phantomlinux.ontime.Util.Logi;
+
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, Serializable {
 
-    public static SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    public SectionsPagerAdapter mSectionsPagerAdapter;
     public static String intakeCode;
-    public static Context appContext;
     public Toolbar toolbar;
-    public static FloatingActionButton fab;
+    public FloatingActionButton fab;
     public SwipeRefreshLayout swipeRefreshLayout;
-    public static List<Timetable> timetable = new ArrayList<Timetable>();
-    public final static List<Timetable> monTable = new ArrayList<Timetable>();
-    public final static List<Timetable> tueTable = new ArrayList<Timetable>();
-    public final static List<Timetable> wedTable = new ArrayList<Timetable>();
-    public final static List<Timetable> thuTable = new ArrayList<Timetable>();
-    public final static List<Timetable> friTable = new ArrayList<Timetable>();
+    public List<Event> monTable = new ArrayList<>();
+    public List<Event> tueTable = new ArrayList<>();
+    public List<Event> wedTable = new ArrayList<>();
+    public List<Event> thuTable = new ArrayList<>();
+    public List<Event> friTable = new ArrayList<>();
     public FragmentManager fragmentManager;
     public FragmentTransaction fragmentTransaction;
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
 
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
@@ -61,7 +62,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        appContext = getApplicationContext();
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setEnabled(false);
         swipeRefreshLayout.setColorSchemeResources(
@@ -75,147 +75,146 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (intakeCode == null || intakeCode == "") {
+                if (intakeCode == null || Objects.equals(intakeCode, "")) {
                     Snackbar.make(view, "Please enter your intake code.", Snackbar.LENGTH_LONG).show();
                     return;
                 }
                 if (Tools.haveNetworkConnection(getApplicationContext())) {
                     onRefresh();
-                    return;
                 } else {
                     Snackbar.make(view, "No internet connection.", Snackbar.LENGTH_LONG).show();
-                    return;
                 }
             }
         });
 
         if (intakeCode!=null){
             runParse();
-            updateSectionAdapter();
+            updateSection();
+            //mViewPager.setAdapter(mSectionsPagerAdapter);
+            //mSectionsPagerAdapter.notifyDataSetChanged();
         }
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    public void updateSection(){
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mSectionsPagerAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(this, Settings.class);
-            startActivity(intent);
-            return true;
-        }
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent intent = new Intent(this, Settings.class);
+                startActivity(intent);
+                return true;
 
-        if (id == R.id.action_about) {
-            Intent intentA = new Intent(this, About.class);
-            startActivity(intentA);
-            return true;
-        }
+            case R.id.action_about:
+                Intent intentA = new Intent(this, About.class);
+                startActivity(intentA);
+                return true;
 
-        if (id  == R.id.filter){
-            fragmentManager = getFragmentManager();
-            fragmentTransaction = fragmentManager.beginTransaction();
-            FilterDialogFragment filterDialogFragment = new FilterDialogFragment();
-            String[] abc = getFilterList(getTimetableFromPosition(mViewPager.getCurrentItem()));
-            Bundle bundle = new Bundle();
-            bundle.putStringArray("filterList",abc);
-            bundle.putInt("page", mViewPager.getCurrentItem());
-            filterDialogFragment.setArguments(bundle);
-            fragmentTransaction.add(filterDialogFragment, "filter");
-            fragmentTransaction.commit();
-            return true;
+            case R.id.filter:
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                FilterDialogFragment filterDialogFragment = new FilterDialogFragment();
+                String[] abc = getFilterList(getTimetableFromPosition(mViewPager.getCurrentItem()));
+                Bundle bundle = new Bundle();
+                bundle.putStringArray("filterList",abc);
+                bundle.putInt("page", mViewPager.getCurrentItem());
+                filterDialogFragment.setArguments(bundle);
+                fragmentTransaction.add(filterDialogFragment, "filter");
+                fragmentTransaction.commit();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     public void runParse() {
-        File dir = null;
-        try {
-            dir = new File(getDataDir(getApplicationContext())+"/TTFolder/timetable.xml");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            InputStream inputStream = new FileInputStream(dir);
-            XMLParser xmlParser = new XMLParser();
-            timetable = xmlParser.parse(new InputStreamReader(inputStream));
-            separateTimetable(timetable);
-            checkForEmpty();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void separateTimetable (List<Timetable> timetable) {
         monTable.clear();
         tueTable.clear();
         wedTable.clear();
         thuTable.clear();
         friTable.clear();
-        for(int x=0; x<timetable.size();x++){
-            Timetable data = timetable.get(x);
-            if(data.date.startsWith("MON")){
-                monTable.add(data);
-            }
-            if(data.date.startsWith("TUE")){
-                tueTable.add(data);
-            }
-            if(data.date.startsWith("WED")){
-                wedTable.add(data);
-            }
-            if(data.date.startsWith("THU")){
-                thuTable.add(data);
-            }
-            if(data.date.startsWith("FRI")){
-                friTable.add(data);
-            }
-        }
-    }
+        try {
+            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+            File dir = new File(Tools.getDataDir(getApplicationContext())+"/TTFolder");
+            Date latestDate = null;
+            for (int g= 0; g<dir.listFiles().length; g++){
+                try {
+                    Date d= format.parse(dir.listFiles()[g].getName().replaceFirst("[.][^.]+$", ""));
+                    if (latestDate == null || d.compareTo(latestDate) > 0 ) {
+                        latestDate = d;
+                    }
 
-    public String getDataDir(final Context context) throws Exception {
-        return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).applicationInfo.dataDir;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    continue;
+                }
+            }
+
+            InputStream inputStream = new FileInputStream(new File(Tools.getDataDir(getApplicationContext())+"/TTFolder/"+format.format(latestDate)+".xml"));
+            XMLParser xmlParser = new XMLParser();
+            List timetable = xmlParser.parse(new InputStreamReader(inputStream));
+            for(int x=0; x<timetable.size();x++){
+                Event data = (Event) timetable.get(x);
+                if(data.date.startsWith("MON")){
+                    monTable.add(data);
+                }
+                if(data.date.startsWith("TUE")){
+                    tueTable.add(data);
+                }
+                if(data.date.startsWith("WED")){
+                    wedTable.add(data);
+                }
+                if(data.date.startsWith("THU")){
+                    thuTable.add(data);
+                }
+                if(data.date.startsWith("FRI")){
+                    friTable.add(data);
+                }
+            }
+
+            if (monTable.isEmpty()
+                    && tueTable.isEmpty()
+                    && wedTable.isEmpty()
+                    && thuTable.isEmpty()
+                    && friTable.isEmpty()){
+                Snackbar.make(fab, "Your intake code might be wrong.", Snackbar.LENGTH_LONG).show();
+            }
+
+            Logi.v(monTable.toString());
+            Logi.v(tueTable.toString());
+            Logi.v(wedTable.toString());
+            Logi.v(thuTable.toString());
+            Logi.v(friTable.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onRefresh() {
         if (MainActivity.intakeCode!= null) {
-            new DownloadTimetable(MainActivity.appContext, this).execute();
+            new DownloadTimetable(getApplicationContext(), this).execute();
         }
     }
 
-    public void updateSectionAdapter() {
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mSectionsPagerAdapter.notifyDataSetChanged();
-    }
-
-    public void checkForEmpty() {
-        if (monTable.isEmpty()
-                && tueTable.isEmpty()
-                && wedTable.isEmpty()
-                && thuTable.isEmpty()
-                && friTable.isEmpty()){
-                Snackbar.make(fab, "Your intake code might be wrong.", Snackbar.LENGTH_LONG).show();
-            }
-    }
-
-    public String[] getFilterList(List<Timetable> timetable){
+    // get the L/T/LAB
+    public String[] getFilterList(List<Event> event){
         ArrayList<String> tempList = new ArrayList<String>();
         String last;
 
-        for (int x = 0; x < timetable.size(); x++) {
-            last = timetable.get(x).module.substring(timetable.get(x).module.lastIndexOf("-")+1);
+        for (int x = 0; x < event.size(); x++) {
+            last = event.get(x).module.substring(event.get(x).module.lastIndexOf("-")+1);
             if (!tempList.contains(last)){
                 tempList.add(last);
             }
@@ -224,32 +223,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         return tempList.toArray(new String[tempList.size()]);
     }
 
-    public List<Timetable> getTimetableFromPosition (int position){
-        List<Timetable> timetableList = new ArrayList<Timetable>() {};
+    // get timetable list from pager
+    public List<Event> getTimetableFromPosition (int position){
+        List<Event> eventList = new ArrayList<Event>() {};
         switch (position) {
             case 0:
-                timetableList.addAll(monTable);
+                eventList.addAll(monTable);
                 break;
             case 1:
-                timetableList.addAll(tueTable);
+                eventList.addAll(tueTable);
                 break;
             case 2:
-                timetableList.addAll(wedTable);
+                eventList.addAll(wedTable);
                 break;
             case 3:
-                timetableList.addAll(thuTable);
+                eventList.addAll(thuTable);
                 break;
             case 4:
-                timetableList.addAll(friTable);
+                eventList.addAll(friTable);
                 break;
         }
-        return timetableList;
+        return eventList;
     }
 
-    class MyFilter implements FilenameFilter {
-        @Override
-        public boolean accept(final File dir, final String name) {
-            return ((name.endsWith(".xml")) | (name.startsWith("a") && name.endsWith(".txt")) | (name.startsWith("a") && name.endsWith(".mp3") | (name.startsWith("a") && name.endsWith(".mp4"))));
-        }
-    }
 }

@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.IOException;
+
 public class Settings extends AppCompatActivity implements View.OnClickListener {
 
 
