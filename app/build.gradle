@@ -8,8 +8,8 @@ android {
         applicationId "com.phantomlinux.ontime"
         minSdkVersion 21
         targetSdkVersion 26
-        versionCode
-        versionName "2"
+        versionCode 4
+        versionName "3"
     }
     buildTypes {
         release {
