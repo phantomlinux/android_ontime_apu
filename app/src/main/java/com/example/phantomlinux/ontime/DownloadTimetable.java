@@ -1,6 +1,7 @@
 package com.example.phantomlinux.ontime;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import com.example.phantomlinux.ontime.Util.Logi;
 import java.io.BufferedInputStream;
@@ -11,8 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * Created by phantomlinux on 10/17/2015.
@@ -73,10 +79,56 @@ class DownloadTimetable extends AsyncTask<Void, Void, Void> {
 
             //unzip
             unpackZip(Tools.getDataDir(appContext)+"/TTFolder/", "tt.zip");
+
+
+            //delete tt.zip
+            File tt = new File(Tools.getDataDir(appContext)+"/TTFolder/tt.zip");
+            if(tt.exists()) {
+                tt.delete();
+            }
+
+            //clean dir
+            cleanDir();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void cleanDir(){
+        try {
+            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+            File dir = new File(Tools.getDataDir(appContext) + "/TTFolder");
+            File[] listOfFiles = dir.listFiles();
+            Date latestDate = null;
+            for (File file : listOfFiles) {
+                if (file.isFile()) {
+
+                    Date d= format.parse(file.getName().replaceFirst("[.][^.]+$", ""));
+                    long diff = d.getTime() - new Date().getTime();
+                    float days = (diff / (1000*60*60*24));
+
+                    if (latestDate == null || d.compareTo(latestDate) > 0 ) {
+                        latestDate = d;
+                    }
+
+                    if (days < -30) {
+                        Logi.v("Delete:"+ file.getName());
+                        File oldFile = new File(Tools.getDataDir(appContext)+"/TTFolder/"+file.getName());
+                        if(oldFile.exists()) {
+                            oldFile.delete();
+                        }
+                    }
+                }
+            }
+            SharedPreferences.Editor editor = appContext.getSharedPreferences("sharedpref", MODE_PRIVATE).edit();
+            editor.putString("week", format.format(latestDate));
+            editor.commit();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

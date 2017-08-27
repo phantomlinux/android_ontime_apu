@@ -27,7 +27,7 @@ public class FilterDialogFragment extends DialogFragment{
         super.onCreateDialog(savedInstanceState);
         filterList = getArguments().getStringArray("filterList");
         page = getArguments().getInt("page");
-        final ArrayList<String> mSelectedItems = new ArrayList<String>();  // Where we track the selected items
+        final ArrayList<String> mSelectedItems = new ArrayList<>();  // Where we track the selected items
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Filter")
                 .setMultiChoiceItems(filterList, null,
@@ -35,30 +35,14 @@ public class FilterDialogFragment extends DialogFragment{
                             @Override
                             public void onClick(DialogInterface dialog, int which,
                                                 boolean isChecked) {
-                                if (isChecked) {
-                                    if (which == 0){
-                                        for (int x=1; x< filterList.length ; x++){
-                                            mSelectedItems.add(filterList[x]);
-                                        }
-                                        ListView dialogListView = ((AlertDialog)dialog).getListView();
-                                        for (int y=0; y<dialogListView.getChildCount();y++){
-                                            ((CheckedTextView)dialogListView.getChildAt(y)).setChecked(true);
-                                        }
-                                        return;
-                                    }
-                                    if (!mSelectedItems.contains(filterList[which])) {
-                                        mSelectedItems.add(filterList[which]);
-                                    }
-                                } else {
-                                    if (which == 0){
-                                        mSelectedItems.clear();
-                                        ListView dialogListView = ((AlertDialog)dialog).getListView();
-                                        for (int y=0; y<dialogListView.getChildCount();y++){
-                                            ((CheckedTextView)dialogListView.getChildAt(y)).setChecked(false);
-                                        }
-                                        return;
-                                    }
-                                    mSelectedItems.remove(filterList[which]);
+                                ListView dialogListView = ((AlertDialog)dialog).getListView();
+
+                                if (which == 0 || dialogListView.isItemChecked(0) ) {
+                                    boolean check = dialogListView.isItemChecked(0);
+                                    Logi.v(""+check);
+                                    for(int i = 1; i < dialogListView.getAdapter().getCount(); i++)
+                                        dialogListView.setItemChecked(i, check);
+
                                 }
                             }
                         })
@@ -66,11 +50,21 @@ public class FilterDialogFragment extends DialogFragment{
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        if (mSelectedItems.size()==0){
-                            dialog.dismiss();
-                            return;
+                        ListView dialogListView = ((AlertDialog)dialog).getListView();
+
+                        //if select all
+                        if (dialogListView.getCheckedItemPositions().get(0)){
+                            for(int j = 1; j < filterList.length; j++) {
+                                mSelectedItems.add(filterList[j]);
+                            }
                         }
-                        Logi.v("page"+page);
+                        else {
+                            for(int i = 1; i < dialogListView.getAdapter().getCount(); i++){
+                                if (dialogListView.getCheckedItemPositions().get(i)){
+                                    mSelectedItems.add(filterList[i]);
+                                }
+                            }
+                        }
                         MainActivity mainActivity = (MainActivity) getActivity();
                         SectionsPagerAdapter sectionsPagerAdapter = mainActivity.mSectionsPagerAdapter;
                         sectionsPagerAdapter.placeholderFragmentArrayList.get(page).filterRecyclerView(mSelectedItems);

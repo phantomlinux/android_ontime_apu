@@ -18,6 +18,7 @@ import java.util.List;
 /**
  * Created by phantomlinux on 10/17/2015.
  */
+
 class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     ArrayList<PlaceholderFragment> placeholderFragmentArrayList= new ArrayList<>();
@@ -61,7 +62,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         private RecyclerView recyclerView;
         private RecyclerView.Adapter recyclerViewAdapter;
         private RecyclerView.LayoutManager recyclerViewLayoutManager;
-        public List<Event> dayOnly;
+        public List<TimetableModel.Event> dayOnly;
 
         private static final String ARG_SECTION_NUMBER = "section_number";
 
@@ -79,24 +80,24 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            dayOnly = new ArrayList<Event>();
+            dayOnly = new ArrayList<TimetableModel.Event>();
             Bundle args = getArguments();
             int sectionNumber = args.getInt(ARG_SECTION_NUMBER);
             switch (sectionNumber){
                 case 0:
-                    dayOnly.addAll(((MainActivity)this.getActivity()).monTable);
+                    dayOnly.addAll(((MainActivity)this.getActivity()).timetableModel.monTable);
                     break;
                 case 1:
-                    dayOnly.addAll(((MainActivity)this.getActivity()).tueTable);
+                    dayOnly.addAll(((MainActivity) this.getActivity()).timetableModel.tueTable);
                     break;
                 case 2:
-                    dayOnly.addAll(((MainActivity)this.getActivity()).wedTable);
+                    dayOnly.addAll(((MainActivity) this.getActivity()).timetableModel.wedTable);
                     break;
                 case 3:
-                    dayOnly.addAll(((MainActivity)this.getActivity()).thuTable);
+                    dayOnly.addAll(((MainActivity) this.getActivity()).timetableModel.thuTable);
                     break;
                 case 4:
-                    dayOnly.addAll(((MainActivity)this.getActivity()).friTable);
+                    dayOnly.addAll(((MainActivity) this.getActivity()).timetableModel.friTable);
                     break;
             }
 
@@ -148,7 +149,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         }
 
         public void filterRecyclerView(ArrayList<String> cat) {
-            List<Event> temp = new ArrayList<>();
+            List<TimetableModel.Event> temp = new ArrayList<>();
             for (int x=0; x< dayOnly.size(); x++){
                 boolean remove=false;
                 for (int y= 0 ; y < cat.size(); y++){

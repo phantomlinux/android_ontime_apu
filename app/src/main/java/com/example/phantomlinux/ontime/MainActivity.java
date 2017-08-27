@@ -2,7 +2,6 @@ package com.example.phantomlinux.ontime;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
@@ -13,11 +12,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.example.phantomlinux.ontime.Util.Logi;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,9 +24,12 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static android.R.attr.format;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener, Serializable {
 
@@ -38,11 +39,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     public Toolbar toolbar;
     public FloatingActionButton fab;
     public SwipeRefreshLayout swipeRefreshLayout;
-    public List<Event> monTable = new ArrayList<>();
-    public List<Event> tueTable = new ArrayList<>();
-    public List<Event> wedTable = new ArrayList<>();
-    public List<Event> thuTable = new ArrayList<>();
-    public List<Event> friTable = new ArrayList<>();
+    public TimetableModel timetableModel;
     public FragmentManager fragmentManager;
     public FragmentTransaction fragmentTransaction;
 
@@ -52,6 +49,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        timetableModel = new TimetableModel();
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this);
 
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 fragmentManager = getFragmentManager();
                 fragmentTransaction = fragmentManager.beginTransaction();
                 FilterDialogFragment filterDialogFragment = new FilterDialogFragment();
-                String[] abc = getFilterList(getTimetableFromPosition(mViewPager.getCurrentItem()));
+                String[] abc = timetableModel.getFilterlist();
                 Bundle bundle = new Bundle();
                 bundle.putStringArray("filterList",abc);
                 bundle.putInt("page", mViewPager.getCurrentItem());
@@ -133,71 +132,90 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                 fragmentTransaction.commit();
                 return true;
 
+            case R.id.week:
+                fragmentManager =getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                WeekDialogFragment weekDialogFragment = new WeekDialogFragment();
+                ArrayList<String> dates = new ArrayList<>();
+
+                try {
+                    File dir = new File(Tools.getDataDir(getApplicationContext()) + "/TTFolder");
+                    File[] listOfFiles = dir.listFiles();
+                    for (File file : listOfFiles) {
+                        if (file.isFile()) {
+                            dates.add(file.getName().replaceFirst("[.][^.]+$", ""));
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Bundle weekBundle = new Bundle();
+                weekBundle.putStringArray("weekList", dates.toArray(new String[0]));
+                weekDialogFragment.setArguments(weekBundle);
+                fragmentTransaction.add(weekDialogFragment, "week");
+                fragmentTransaction.commit();
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    public void runParse(String date){
+        if (date == null){
+            runParse();
+        }
+        else {
+            try {
+                InputStream inputStream = new FileInputStream(new File(Tools.getDataDir(getApplicationContext())+"/TTFolder/"+date+".xml"));
+                XMLParser xmlParser = new XMLParser();
+                List timetable = xmlParser.parse(new InputStreamReader(inputStream));
+                timetableModel = new TimetableModel(timetable);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
     public void runParse() {
-        monTable.clear();
-        tueTable.clear();
-        wedTable.clear();
-        thuTable.clear();
-        friTable.clear();
-        try {
-            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
-            File dir = new File(Tools.getDataDir(getApplicationContext())+"/TTFolder");
-            Date latestDate = null;
-            for (int g= 0; g<dir.listFiles().length; g++){
-                try {
-                    Date d= format.parse(dir.listFiles()[g].getName().replaceFirst("[.][^.]+$", ""));
-                    if (latestDate == null || d.compareTo(latestDate) > 0 ) {
-                        latestDate = d;
+
+        SharedPreferences prefs = getSharedPreferences("sharedpref", MODE_PRIVATE);
+        String week = prefs.getString("week", null);
+        if (week == null) {
+            try {
+                SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd");
+                File dir = new File(Tools.getDataDir(getApplicationContext())+"/TTFolder");
+                Date latestDate = null;
+                for (int g= 0; g<dir.listFiles().length; g++){
+                    try {
+                        Date d= format.parse(dir.listFiles()[g].getName().replaceFirst("[.][^.]+$", ""));
+                        if (latestDate == null || d.compareTo(latestDate) > 0 ) {
+                            latestDate = d;
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    continue;
                 }
+
+                InputStream inputStream = new FileInputStream(new File(Tools.getDataDir(getApplicationContext())+"/TTFolder/"+format.format(latestDate)+".xml"));
+                XMLParser xmlParser = new XMLParser();
+                List timetable = xmlParser.parse(new InputStreamReader(inputStream));
+                timetableModel = new TimetableModel(timetable);
+
+                if (timetableModel.isEmpty()) {
+                    Snackbar.make(fab, "Your intake code might be wrong.", Snackbar.LENGTH_LONG).show();
+
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            InputStream inputStream = new FileInputStream(new File(Tools.getDataDir(getApplicationContext())+"/TTFolder/"+format.format(latestDate)+".xml"));
-            XMLParser xmlParser = new XMLParser();
-            List timetable = xmlParser.parse(new InputStreamReader(inputStream));
-            for(int x=0; x<timetable.size();x++){
-                Event data = (Event) timetable.get(x);
-                if(data.date.startsWith("MON")){
-                    monTable.add(data);
-                }
-                if(data.date.startsWith("TUE")){
-                    tueTable.add(data);
-                }
-                if(data.date.startsWith("WED")){
-                    wedTable.add(data);
-                }
-                if(data.date.startsWith("THU")){
-                    thuTable.add(data);
-                }
-                if(data.date.startsWith("FRI")){
-                    friTable.add(data);
-                }
-            }
-
-            if (monTable.isEmpty()
-                    && tueTable.isEmpty()
-                    && wedTable.isEmpty()
-                    && thuTable.isEmpty()
-                    && friTable.isEmpty()){
-                Snackbar.make(fab, "Your intake code might be wrong.", Snackbar.LENGTH_LONG).show();
-            }
-
-            Logi.v(monTable.toString());
-            Logi.v(tueTable.toString());
-            Logi.v(wedTable.toString());
-            Logi.v(thuTable.toString());
-            Logi.v(friTable.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+        else {
+            runParse(week);
         }
     }
 
@@ -206,44 +224,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         if (MainActivity.intakeCode!= null) {
             new DownloadTimetable(getApplicationContext(), this).execute();
         }
-    }
-
-    // get the L/T/LAB
-    public String[] getFilterList(List<Event> event){
-        ArrayList<String> tempList = new ArrayList<String>();
-        String last;
-
-        for (int x = 0; x < event.size(); x++) {
-            last = event.get(x).module.substring(event.get(x).module.lastIndexOf("-")+1);
-            if (!tempList.contains(last)){
-                tempList.add(last);
-            }
-        }
-        tempList.add(0,"Select All");
-        return tempList.toArray(new String[tempList.size()]);
-    }
-
-    // get timetable list from pager
-    public List<Event> getTimetableFromPosition (int position){
-        List<Event> eventList = new ArrayList<Event>() {};
-        switch (position) {
-            case 0:
-                eventList.addAll(monTable);
-                break;
-            case 1:
-                eventList.addAll(tueTable);
-                break;
-            case 2:
-                eventList.addAll(wedTable);
-                break;
-            case 3:
-                eventList.addAll(thuTable);
-                break;
-            case 4:
-                eventList.addAll(friTable);
-                break;
-        }
-        return eventList;
     }
 
 }

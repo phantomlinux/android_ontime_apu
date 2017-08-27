@@ -20,8 +20,6 @@
             android:layout_width="match_parent"
             android:padding="16dp"
             android:background="@drawable/custom_ripple">
-            <!--android:background="?android:attr/selectableItemBackground"-->
-            <!-- Box for left column -->
             <LinearLayout
                 android:id="@+id/leftColumn"
                 android:layout_width="wrap_content"

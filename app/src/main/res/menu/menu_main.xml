@@ -5,10 +5,16 @@
     tools:context=".MainActivity">
 
     <item
+        android:id="@+id/week"
+        android:title="@string/week"
+        android:icon="@drawable/ic_view_module"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/filter"
         android:title="@string/filter"
         android:icon="@drawable/ic_filter_list_white_24dp"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/action_settings"

@@ -3,6 +3,7 @@ package com.example.phantomlinux.ontime;
 /**
  * Created by phantomlinux on 10/17/2015.
  */
+
 class Event {
 
     String date;

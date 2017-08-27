@@ -67,7 +67,7 @@ public class XMLParser {
         return week;
     }
 
-    private Event readTimetable(XmlPullParser parser) throws XmlPullParserException, IOException {
+    private TimetableModel.Event readTimetable(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "timetable");
         String date = null;
         String time = null;
@@ -98,7 +98,7 @@ public class XMLParser {
                 skip(parser);
             }
         }
-        return new Event(date, time, location,classroom, module, lecturer);
+        return new TimetableModel.Event(date, time, location,classroom, module, lecturer);
     }
 
 

@@ -20,10 +20,10 @@ import java.util.List;
  */
 
 public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<Event> a = new ArrayList<Event>();
+    private List<TimetableModel.Event> a = new ArrayList<>();
     public Context context;
 
-    public TimetableAdapter(List<Event> a, Context context) {
+    public TimetableAdapter(List<TimetableModel.Event> a, Context context) {
         super();
         this.a.addAll(a);
         this.context = context;
@@ -66,7 +66,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         switch (holder.getItemViewType()){
             case 0:
                 FirstCard firstCard= (FirstCard)holder;
-                Event firstCardData = a.get(0);
+                TimetableModel.Event firstCardData = a.get(0);
                 DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
                 try {
                     Date date = df.parse(firstCardData.date.substring(4));
@@ -99,7 +99,7 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
             case 1:
                 ViewHolder viewHolder = (ViewHolder)holder;
-                Event data = a.get(position-1);
+                TimetableModel.Event data = a.get(position-1);
                 viewHolder.txtLecturer.setText(data.lecturer);
                 viewHolder.txtModule.setText(data.module);
                 viewHolder.txtLocation.setText(data.location+" "+data.classroom);
@@ -145,7 +145,11 @@ public class TimetableAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public boolean onLongClick(View v) {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
-            sendIntent.putExtra(Intent.EXTRA_TEXT,"Time: " + txtTime.getText() + "\nLocation: " + txtLocation.getText() + "\nModule: " + txtModule.getText() + "\nLect: " + txtLecturer.getText());
+            sendIntent.putExtra(Intent.EXTRA_TEXT,
+                            "Time: " + txtTime.getText() +
+                            "\nLocation: " + txtLocation.getText() +
+                            "\nModule: " + txtModule.getText() +
+                            "\nLect: " + txtLecturer.getText());
             sendIntent.setType("text/plain");
             context.startActivity(sendIntent);
             return false;

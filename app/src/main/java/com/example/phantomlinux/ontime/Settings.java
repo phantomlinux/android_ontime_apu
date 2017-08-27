@@ -10,14 +10,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import java.io.IOException;
-
 public class Settings extends AppCompatActivity implements View.OnClickListener {
-
 
     private Button btnLockIn;
     private EditText txtIntakeCode;
-    private String restoredIntakeCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +35,7 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
 
         //Check for shred pref intake code
         SharedPreferences prefs = getSharedPreferences("sharedpref", MODE_PRIVATE);
-        restoredIntakeCode = prefs.getString("intakecode", null);
-
-        //Log.v("log",""+restoredIntakeCode);
+        String restoredIntakeCode = prefs.getString("intakecode", null);
 
         if (restoredIntakeCode != null) {
             //Disable edit text field
@@ -53,7 +47,6 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
 
 
     public void disableEditText(String input) {
-
         // Disable edit text
         txtIntakeCode.setText(input);
         txtIntakeCode.setEnabled(false);
@@ -65,9 +58,7 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnLockIn:
-
                 if (btnLockIn.getText() == "Unlock") {
-                    //txtIntakeCode.setText(txtIntakeCode);
                     txtIntakeCode.setEnabled(true);
                     txtIntakeCode.setInputType(InputType.TYPE_CLASS_TEXT);
                     btnLockIn.setText("Lock In");
@@ -80,7 +71,6 @@ public class Settings extends AppCompatActivity implements View.OnClickListener 
                 }
 
                 if (txtIntakeCode.getText().length() > 0) {
-
                     String intakeCode = txtIntakeCode.getText().toString();
                     intakeCode = intakeCode.replace(" ","");
                     intakeCode = intakeCode.toUpperCase();

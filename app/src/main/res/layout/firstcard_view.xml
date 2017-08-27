@@ -25,14 +25,14 @@
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:text="MONDAY"
-                android:textSize="8pt"
+                android:textSize="18sp"
                 android:textColor="@color/background_material_dark2"/>
             <TextView
                 android:id="@+id/date"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:text="20 FEB"
-                android:textSize="16pt"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 android:textColor="@color/background_material_dark2"
                 android:textAlignment="viewEnd"/>
@@ -40,7 +40,7 @@
                 android:id="@+id/firstcard_message"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:textSize="6pt"
+                android:textSize="12sp"
                 android:textStyle="italic"
                 android:textColor="@color/background_material_dark2"
                 android:textAlignment="viewEnd"
